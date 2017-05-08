@@ -63,10 +63,13 @@ handleSequence sequenceMsg (State phase msgs) update model =
 
         Rest ->
             case List.head msgs of
-                Just ( ms, msg ) ->
+                Just ( _, msg ) ->
                     let
                         rest =
                             List.tail msgs |> Maybe.withDefault []
+
+                        nextDelay =
+                            nextDelayDuration msgs |> Maybe.withDefault 0
 
                         ( newModel, cmd ) =
                             update msg model
@@ -75,7 +78,7 @@ handleSequence sequenceMsg (State phase msgs) update model =
                             if List.length msgs == 1 then
                                 Cmd.none
                             else
-                                sequenceDelay ms (State Rest rest) sequenceMsg
+                                sequenceDelay nextDelay (State Rest rest) sequenceMsg
                     in
                         newModel ! [ cmd, nextCmd ]
 
@@ -90,3 +93,13 @@ sequenceDelay ms (State phase msgs) sequenceMsg =
     Process.sleep (millisecond * ms)
         |> Task.map (always (sequenceMsg (State phase msgs)))
         |> Task.perform identity
+
+
+{-| Private. Gets the next delay duration of the update sequence
+-}
+nextDelayDuration : List ( Float, msg ) -> Maybe Float
+nextDelayDuration msgs =
+    msgs
+        |> List.drop 1
+        |> List.head
+        |> Maybe.map Tuple.first
