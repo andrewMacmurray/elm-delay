@@ -27,10 +27,11 @@ To send a sequence of `Msg`s add a new `Msg` type like so:
 
 ```elm
 type Msg
-    = FirstMessage
+    = Trigger
+    | FirstMessage
     | SecondMessage
     | ThirdMessage
-    | Sequence (Delay.State Msg) -- add this to your Msg type
+    | Sequence (List (Float, Msg)) -- add this to your Msg type
 ```
 
 and add a new branch to your `update` function like so:
@@ -40,19 +41,18 @@ Sequence msgs ->
   Delay.handleSequence Sequence msgs update model
 ```
 
-This allows a list of `(delay, Msg)` to be funnelled to update by passing them to something like a click handler:
+This allows a list of `(delay, Msg)` to be funnelled to update by passing them as a command to the elm runtime like so:
 
 ```elm
 
-  div
-      [ onClick
-          (Delay.start Sequence
-              [ ( 1000, FirstMessage )
-              , ( 2000, SecondMessage )
-              , ( 1000, ThirdMessage )
-              ]
-          )
-      ]
+Trigger ->
+    model
+        ! [ Delay.start Sequence
+                [ ( 1000, FirstMessage )
+                , ( 2000, SecondMessage )
+                , ( 1000, ThirdMessage )
+                ]
+          ]
 ```
 
 Clicking on this div:
