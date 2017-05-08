@@ -29,7 +29,7 @@ after ms msg =
         |> Task.perform identity
 
 
-{-| Starts the sequence of messages
+{-| Starts a sequence of messages
 -}
 start : (List ( Float, msg ) -> msg) -> List ( Float, msg ) -> Cmd msg
 start sequenceMsg msgs =
