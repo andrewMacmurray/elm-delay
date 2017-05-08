@@ -55,7 +55,7 @@ Trigger ->
           ]
 ```
 
-Clicking on this div:
+by sending a `Trigger` `Msg`:
 
 + after `1000ms` update will be called with `FirstMessage`
 + then after `2000ms` update will be called with `SecondMessage`
