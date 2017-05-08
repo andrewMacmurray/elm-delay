@@ -19,7 +19,7 @@ FirstMessage ->
     model ! [ Delay.after 500 SecondMessage ]
 ```
 
-After triggering `FirstMessage`, update will get called with `SecondMessage` after `500ms`
+After triggering `FirstMessage`, `500ms` later update will be called with `SecondMessage`
 
 #### Send a sequence of delayed `Msg`s
 
