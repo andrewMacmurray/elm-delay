@@ -37,21 +37,22 @@ and add a new branch to your `update` function like so:
 
 ```elm
 Sequence msgs ->
-  handleSequence Sequence msgs update model
+  Delay.handleSequence Sequence msgs update model
 ```
 
 This allows a list of `(delay, Msg)` to be funnelled to update by passing them to something like a click handler:
 
 ```elm
-div
-    [ onClick
-        (Delay.start Sequence
-            [ ( 1000, FirstMessage )
-            , ( 2000, SecondMessage )
-            , ( 1000, ThirdMessage )
-            ]
-        )
-    ]
+
+  div
+      [ onClick
+          (Delay.start Sequence
+              [ ( 1000, FirstMessage )
+              , ( 2000, SecondMessage )
+              , ( 1000, ThirdMessage )
+              ]
+          )
+      ]
 ```
 
 Clicking on this div:
