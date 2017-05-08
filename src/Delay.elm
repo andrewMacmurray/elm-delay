@@ -55,7 +55,7 @@ handleSequence sequenceMsg (State phase msgs) update model =
     case phase of
         First ->
             case List.head msgs of
-                Just ( ms, msg ) ->
+                Just ( ms, _ ) ->
                     model ! [ sequenceDelay ms (State Rest msgs) sequenceMsg ]
 
                 Nothing ->
@@ -65,7 +65,7 @@ handleSequence sequenceMsg (State phase msgs) update model =
             case List.head msgs of
                 Just ( _, msg ) ->
                     let
-                        rest =
+                        remainingMsgs =
                             List.tail msgs |> Maybe.withDefault []
 
                         nextDelay =
@@ -75,10 +75,10 @@ handleSequence sequenceMsg (State phase msgs) update model =
                             update msg model
 
                         nextCmd =
-                            if List.length msgs == 1 then
-                                Cmd.none
+                            if List.length msgs > 1 then
+                                sequenceDelay nextDelay (State Rest remainingMsgs) sequenceMsg
                             else
-                                sequenceDelay nextDelay (State Rest rest) sequenceMsg
+                                Cmd.none
                     in
                         newModel ! [ cmd, nextCmd ]
 
