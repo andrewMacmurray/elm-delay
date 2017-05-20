@@ -2,6 +2,8 @@
 
 Elm utilities to trigger updates after a delay
 
+example: https://andrewmacmurray.github.io/elm-delay/
+
 ### Why?
 
 Sometimes you need to trigger updates after a period of time (i.e. to wait for a css transition or animation to complete) or maybe you need to chain a sequence of these updates (for more complex states).
