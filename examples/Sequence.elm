@@ -6,19 +6,19 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 
 
+type alias Model =
+    { color : String
+    , colorCycling : Bool
+    }
+
+
 type Msg
     = Trigger
     | Red
     | Green
     | Blue
-    | Stop
+    | ColorCycling Bool
     | Sequence (List ( Float, Msg ))
-
-
-type alias Model =
-    { color : String
-    , colorCycling : Bool
-    }
 
 
 init : ( Model, Cmd Msg )
@@ -29,24 +29,26 @@ init =
         ! []
 
 
-cycleColors : Cmd Msg
-cycleColors =
-    Delay.start Sequence
-        [ ( 2000, Red )
-        , ( 2000, Green )
-        , ( 2000, Blue )
-        , ( 2000, Stop )
-        ]
+cycleColors : Model -> Cmd Msg
+cycleColors model =
+    let
+        sequence =
+            Delay.startIf (not model.colorCycling) Sequence
+    in
+        sequence
+            [ ( 0, ColorCycling True )
+            , ( 0, Red )
+            , ( 2000, Green )
+            , ( 2000, Blue )
+            , ( 2000, ColorCycling False )
+            ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger ->
-            if not model.colorCycling then
-                { model | color = "purple", colorCycling = True } ! [ cycleColors ]
-            else
-                model ! []
+            model ! [ cycleColors model ]
 
         Red ->
             { model | color = "red" } ! []
@@ -57,8 +59,8 @@ update msg model =
         Blue ->
             { model | color = "blue" } ! []
 
-        Stop ->
-            { model | colorCycling = False } ! []
+        ColorCycling bool ->
+            { model | colorCycling = bool } ! []
 
         Sequence msgs ->
             Delay.handleSequence Sequence msgs update model
@@ -70,7 +72,7 @@ view model =
         [ style <| backgroundStyles model
         , onClick Trigger
         ]
-        [ text "cycle through the colors" ]
+        [ text "click to cycle through the colors" ]
 
 
 backgroundStyles : Model -> List ( String, String )
@@ -85,6 +87,7 @@ backgroundStyles { color } =
     , ( "display", "flex" )
     , ( "justify-content", "center" )
     , ( "align-items", "center" )
+    , ( "text-align", "center" )
     , ( "color", "white" )
     , ( "cursor", "pointer" )
     , ( "font-family", "helvetica" )
