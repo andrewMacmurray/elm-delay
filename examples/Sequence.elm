@@ -23,7 +23,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    { color = "blue"
+    { color = "#1E70B5"
     , colorCycling = False
     }
         ! []
@@ -51,13 +51,13 @@ update msg model =
             model ! [ cycleColors model ]
 
         Red ->
-            { model | color = "red" } ! []
+            { model | color = "#BC1F31" } ! []
 
         Green ->
-            { model | color = "green" } ! []
+            { model | color = "#259860" } ! []
 
         Blue ->
-            { model | color = "blue" } ! []
+            { model | color = "#1E70B5" } ! []
 
         ColorCycling bool ->
             { model | colorCycling = bool } ! []

@@ -94,7 +94,7 @@ handleSequence sequenceMsg msgs update model =
         Just ( _, msg ) ->
             let
                 remainingMsgs =
-                    List.tail msgs |> Maybe.withDefault []
+                    List.drop 1 msgs
 
                 nextDelay =
                     (getDelay 1) msgs
