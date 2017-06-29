@@ -4478,76 +4478,65 @@ var _elm_lang$core$Tuple$first = function (_p6) {
 	var _p7 = _p6;
 	return _p7._0;
 };
-var _andrewMacmurray$elm_delay$Delay$getDelay = F2(
-	function (n, msgs) {
+var _andrewMacmurray$elm_delay$Delay$withUnit = F2(
+	function (unit, msgs) {
 		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			0,
-			A2(
-				_elm_lang$core$Maybe$map,
-				_elm_lang$core$Tuple$first,
-				_elm_lang$core$List$head(
-					A2(_elm_lang$core$List$drop, n, msgs))));
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return {ctor: '_Tuple3', _0: _p1._0, _1: unit, _2: _p1._1};
+			},
+			msgs);
 	});
-var _andrewMacmurray$elm_delay$Delay$after = F2(
-	function (ms, msg) {
+var _andrewMacmurray$elm_delay$Delay$after_ = F2(
+	function (time, msg) {
 		return A2(
 			_elm_lang$core$Task$perform,
 			_elm_lang$core$Basics$identity,
 			A2(
 				_elm_lang$core$Task$map,
 				_elm_lang$core$Basics$always(msg),
-				_elm_lang$core$Process$sleep(_elm_lang$core$Time$millisecond * ms)));
+				_elm_lang$core$Process$sleep(time)));
 	});
-var _andrewMacmurray$elm_delay$Delay$startIf = F3(
-	function (predicate, sequenceMsg, msgs) {
-		if (predicate) {
-			var firstDelay = A2(_andrewMacmurray$elm_delay$Delay$getDelay, 0, msgs);
-			return A2(
-				_andrewMacmurray$elm_delay$Delay$after,
-				firstDelay,
-				sequenceMsg(msgs));
-		} else {
-			return _elm_lang$core$Platform_Cmd$none;
-		}
-	});
-var _andrewMacmurray$elm_delay$Delay$start = F2(
-	function (sequenceMsg, msgs) {
-		return A3(_andrewMacmurray$elm_delay$Delay$startIf, true, sequenceMsg, msgs);
-	});
-var _andrewMacmurray$elm_delay$Delay$handleSequence = F4(
-	function (sequenceMsg, msgs, update, model) {
-		var _p0 = _elm_lang$core$List$head(msgs);
-		if (_p0.ctor === 'Just') {
-			var _p1 = A2(update, _p0._0._1, model);
-			var newModel = _p1._0;
-			var cmd = _p1._1;
-			var nextDelay = A2(_andrewMacmurray$elm_delay$Delay$getDelay, 1, msgs);
-			var remainingMsgs = A2(_elm_lang$core$List$drop, 1, msgs);
-			var nextCmd = (_elm_lang$core$Native_Utils.cmp(
-				_elm_lang$core$List$length(msgs),
-				1) > 0) ? A2(
-				_andrewMacmurray$elm_delay$Delay$after,
-				nextDelay,
-				sequenceMsg(remainingMsgs)) : _elm_lang$core$Platform_Cmd$none;
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				newModel,
+var _andrewMacmurray$elm_delay$Delay$sequence = function (msgs) {
+	return _elm_lang$core$Platform_Cmd$batch(
+		_elm_lang$core$Tuple$second(
+			A3(
+				_elm_lang$core$List$foldl,
+				F2(
+					function (_p3, _p2) {
+						var _p4 = _p3;
+						var _p8 = _p4._1;
+						var _p7 = _p4._0;
+						var _p5 = _p2;
+						var _p6 = _p5._0;
+						return {
+							ctor: '_Tuple2',
+							_0: _p6 + (_p7 * _p8),
+							_1: A2(
+								_elm_lang$core$Basics_ops['++'],
+								_p5._1,
+								{
+									ctor: '::',
+									_0: A2(_andrewMacmurray$elm_delay$Delay$after_, _p6 + (_p7 * _p8), _p4._2),
+									_1: {ctor: '[]'}
+								})
+						};
+					}),
 				{
-					ctor: '::',
-					_0: cmd,
-					_1: {
-						ctor: '::',
-						_0: nextCmd,
-						_1: {ctor: '[]'}
-					}
-				});
-		} else {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				model,
-				{ctor: '[]'});
-		}
+					ctor: '_Tuple2',
+					_0: 0,
+					_1: {ctor: '[]'}
+				},
+				msgs)));
+};
+var _andrewMacmurray$elm_delay$Delay$sequenceIf = F2(
+	function (predicate, msgs) {
+		return predicate ? _andrewMacmurray$elm_delay$Delay$sequence(msgs) : _elm_lang$core$Platform_Cmd$none;
+	});
+var _andrewMacmurray$elm_delay$Delay$after = F3(
+	function (time, unit, msg) {
+		return A2(_andrewMacmurray$elm_delay$Delay$after_, time * unit, msg);
 	});
 //import Native.List //
 
@@ -12737,48 +12726,44 @@ var _andrewMacmurray$elm_delay$Sequence$Model = F2(
 	function (a, b) {
 		return {color: a, colorCycling: b};
 	});
-var _andrewMacmurray$elm_delay$Sequence$Sequence = function (a) {
-	return {ctor: 'Sequence', _0: a};
-};
 var _andrewMacmurray$elm_delay$Sequence$ColorCycling = function (a) {
 	return {ctor: 'ColorCycling', _0: a};
 };
 var _andrewMacmurray$elm_delay$Sequence$Blue = {ctor: 'Blue'};
 var _andrewMacmurray$elm_delay$Sequence$Green = {ctor: 'Green'};
 var _andrewMacmurray$elm_delay$Sequence$Red = {ctor: 'Red'};
-var _andrewMacmurray$elm_delay$Sequence$cycleColors = function (model) {
-	var sequence = A2(_andrewMacmurray$elm_delay$Delay$startIf, !model.colorCycling, _andrewMacmurray$elm_delay$Sequence$Sequence);
-	return sequence(
-		{
+var _andrewMacmurray$elm_delay$Sequence$cycleColors = A2(
+	_andrewMacmurray$elm_delay$Delay$withUnit,
+	_elm_lang$core$Time$millisecond,
+	{
+		ctor: '::',
+		_0: {
+			ctor: '_Tuple2',
+			_0: 0,
+			_1: _andrewMacmurray$elm_delay$Sequence$ColorCycling(true)
+		},
+		_1: {
 			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 0,
-				_1: _andrewMacmurray$elm_delay$Sequence$ColorCycling(true)
-			},
+			_0: {ctor: '_Tuple2', _0: 0, _1: _andrewMacmurray$elm_delay$Sequence$Red},
 			_1: {
 				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 0, _1: _andrewMacmurray$elm_delay$Sequence$Red},
+				_0: {ctor: '_Tuple2', _0: 2000, _1: _andrewMacmurray$elm_delay$Sequence$Green},
 				_1: {
 					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 2000, _1: _andrewMacmurray$elm_delay$Sequence$Green},
+					_0: {ctor: '_Tuple2', _0: 2000, _1: _andrewMacmurray$elm_delay$Sequence$Blue},
 					_1: {
 						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 2000, _1: _andrewMacmurray$elm_delay$Sequence$Blue},
-						_1: {
-							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 2000,
-								_1: _andrewMacmurray$elm_delay$Sequence$ColorCycling(false)
-							},
-							_1: {ctor: '[]'}
-						}
+						_0: {
+							ctor: '_Tuple2',
+							_0: 2000,
+							_1: _andrewMacmurray$elm_delay$Sequence$ColorCycling(false)
+						},
+						_1: {ctor: '[]'}
 					}
 				}
 			}
-		});
-};
+		}
+	});
 var _andrewMacmurray$elm_delay$Sequence$update = F2(
 	function (msg, model) {
 		var _p2 = msg;
@@ -12789,7 +12774,7 @@ var _andrewMacmurray$elm_delay$Sequence$update = F2(
 					model,
 					{
 						ctor: '::',
-						_0: _andrewMacmurray$elm_delay$Sequence$cycleColors(model),
+						_0: A2(_andrewMacmurray$elm_delay$Delay$sequenceIf, !model.colorCycling, _andrewMacmurray$elm_delay$Sequence$cycleColors),
 						_1: {ctor: '[]'}
 					});
 			case 'Red':
@@ -12813,15 +12798,13 @@ var _andrewMacmurray$elm_delay$Sequence$update = F2(
 						model,
 						{color: '#1E70B5'}),
 					{ctor: '[]'});
-			case 'ColorCycling':
+			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
 						{colorCycling: _p2._0}),
 					{ctor: '[]'});
-			default:
-				return A4(_andrewMacmurray$elm_delay$Delay$handleSequence, _andrewMacmurray$elm_delay$Sequence$Sequence, _p2._0, _andrewMacmurray$elm_delay$Sequence$update, model);
 		}
 	});
 var _andrewMacmurray$elm_delay$Sequence$Trigger = {ctor: 'Trigger'};
@@ -12854,7 +12837,7 @@ var _andrewMacmurray$elm_delay$Sequence$main = _elm_lang$html$Html$program(
 var Elm = {};
 Elm['Sequence'] = Elm['Sequence'] || {};
 if (typeof _andrewMacmurray$elm_delay$Sequence$main !== 'undefined') {
-    _andrewMacmurray$elm_delay$Sequence$main(Elm['Sequence'], 'Sequence', {"types":{"unions":{"Sequence.Msg":{"args":[],"tags":{"Red":[],"Sequence":["List ( Float, Sequence.Msg )"],"Trigger":[],"ColorCycling":["Bool"],"Green":[],"Blue":[]}}},"aliases":{},"message":"Sequence.Msg"},"versions":{"elm":"0.18.0"}});
+    _andrewMacmurray$elm_delay$Sequence$main(Elm['Sequence'], 'Sequence', {"types":{"unions":{"Sequence.Msg":{"args":[],"tags":{"Red":[],"Trigger":[],"ColorCycling":["Bool"],"Green":[],"Blue":[]}}},"aliases":{},"message":"Sequence.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
