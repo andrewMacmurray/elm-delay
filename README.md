@@ -25,7 +25,6 @@ After triggering `FirstMessage`, `500ms` later update will be called with `Secon
 
 #### Send a sequence of delayed `Msg`s
 
-
 ```elm
 Trigger ->
     model
