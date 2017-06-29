@@ -18,7 +18,7 @@ module Delay
 
 import Process
 import Task
-import Time exposing (Time)
+import Time exposing (Time, millisecond)
 
 
 {-| Delays an update (with a message) by a given amount of time
@@ -30,7 +30,7 @@ after time unit msg =
     after_ (time * unit) msg
 
 
-{-| private version of after,
+{-| Private: internal version of after,
     used to collect total time in sequence
 -}
 after_ : Time -> msg -> Cmd msg
@@ -51,12 +51,39 @@ after_ time msg =
 sequence : List ( Float, Time, msg ) -> Cmd msg
 sequence msgs =
     msgs
-        |> List.foldl (\( time, unit, msg ) ( totalTime, cmds ) -> ( totalTime + (time * unit), cmds ++ [ after_ (totalTime + (time * unit)) msg ] )) ( 0, [] )
+        |> List.foldl collectDelays ( 0, [] )
         |> Tuple.second
         |> Cmd.batch
 
 
-{-| Starts a sequence of delayed messages if predicate is `True`
+{-| Private: helps create a list of delays,
+    keeps track of the current delay time
+-}
+collectDelays : ( Float, Time, msg ) -> ( Float, List (Cmd msg) ) -> ( Float, List (Cmd msg) )
+collectDelays ( time, unit, msg ) ( previousTotal, cmds ) =
+    let
+        newTotal =
+            addOffset previousTotal time unit
+    in
+        ( newTotal, cmds ++ [ after_ newTotal msg ] )
+
+
+{-| Private: checks if consecutive delays are too close together
+    applies an offset if they are
+-}
+addOffset : Float -> Float -> Time -> Float
+addOffset previousTotal time unit =
+    let
+        total =
+            previousTotal + (time * unit)
+    in
+        if total <= previousTotal + 6 then
+            total + 6
+        else
+            total
+
+
+{-| Starts a sequence of delayed messages if predicate is met
 
     sequenceIf (not model.updating)
         [ ( 1000, millisecond, FirstMessage )
@@ -75,11 +102,11 @@ sequenceIf predicate msgs =
 {-| Helper for making all steps have the same unit
 
     withUnit millisecond
-        [ ( 1000, FirstMessage )
-        , ( 2000, SecondMessage )
-        , ( 1000, ThirdMessage )
-        ]
-        |> sequence
+      [ ( 1000, FirstMessage )
+      , ( 2000, SecondMessage )
+      , ( 1000, ThirdMessage )
+      ]
+      |> sequence
 -}
 withUnit : Time -> List ( Float, msg ) -> List ( Float, Time, msg )
 withUnit unit msgs =
