@@ -1,9 +1,9 @@
 module Delay
     exposing
         ( after
-        , start
-        , startIf
-        , handleSequence
+        , sequence
+        , sequenceIf
+        , withUnit
         )
 
 {-| Utilities to delay updates after a set period of time
@@ -12,114 +12,75 @@ module Delay
 @docs after
 
 # Delay a sequence of messages
-@docs start, startIf, handleSequence
+@docs sequence, sequenceIf, withUnit
 
 -}
 
 import Process
 import Task
-import Time exposing (millisecond)
+import Time exposing (Time)
 
 
-{-| Delays an update (with a message) by a given number of milliseconds
+{-| Delays an update (with a message) by a given amount of time
 
-    -- triggers DelayedMsg after 500ms
-    after 500 DelayedMsg
+    after 500 millisecond DelayedMsg
 -}
-after : Float -> msg -> Cmd msg
-after ms msg =
-    Process.sleep (millisecond * ms)
+after : Float -> Time -> msg -> Cmd msg
+after time unit msg =
+    after_ (time * unit) msg
+
+
+{-| private version of after,
+    used to collect total time in sequence
+-}
+after_ : Time -> msg -> Cmd msg
+after_ time msg =
+    Process.sleep time
         |> Task.map (always msg)
         |> Task.perform identity
 
 
-{-| Starts a sequence of messages given the SequenceMsg and a list of messages to be sent
+{-| Starts a sequence of delayed messages
 
-    type Msg
-        = FirstMsg
-        | SecondMsg
-        | ThirdMsg
-        | Sequence (List ( Float, Msg ))
-
-    -- triggers each Msg one after the other with a 500ms delay
-    start Sequence
-      [ (500, FirstMsg)
-      , (500, SecondMsg)
-      , (500, ThirdMsg)
-      ]
+    sequence
+        [ ( 1000, millisecond, FirstMessage )
+        , ( 2000, millisecond, SecondMessage )
+        , ( 1000, millisecond, ThirdMessage )
+        ]
 -}
-start : (List ( Float, msg ) -> msg) -> List ( Float, msg ) -> Cmd msg
-start sequenceMsg msgs =
-    startIf True sequenceMsg msgs
+sequence : List ( Float, Time, msg ) -> Cmd msg
+sequence msgs =
+    msgs
+        |> List.foldl (\( time, unit, msg ) ( totalTime, cmds ) -> ( totalTime + (time * unit), cmds ++ [ after_ (totalTime + (time * unit)) msg ] )) ( 0, [] )
+        |> Tuple.second
+        |> Cmd.batch
 
 
-{-| Starts a sequence if a predicate value is True. This is helpful if you'd like to start the sequence only if your model is in a particular shape
+{-| Starts a sequence of delayed messages if predicate is `True`
 
-    startIf (not model.updating) Sequence
-      [ (500, FirstMsg)
-      , (500, SecondMsg)
-      , (500, ThirdMsg)
-      ]
+    sequenceIf (not model.updating)
+        [ ( 1000, millisecond, FirstMessage )
+        , ( 2000, millisecond, SecondMessage )
+        , ( 1000, millisecond, ThirdMessage )
+        ]
 -}
-startIf :
-    Bool
-    -> (List ( Float, msg ) -> msg)
-    -> List ( Float, msg )
-    -> Cmd msg
-startIf predicate sequenceMsg msgs =
+sequenceIf : Bool -> List ( Float, Time, msg ) -> Cmd msg
+sequenceIf predicate msgs =
     if predicate then
-        let
-            firstDelay =
-                getDelay 0 msgs
-        in
-            after firstDelay (sequenceMsg msgs)
+        sequence msgs
     else
         Cmd.none
 
 
-{-| Calls update with each message and a delay until finished.
+{-| Helper for making all steps have the same unit
 
-    -- recursively calls update until all Msgs have been processed
-    Sequence msgs ->
-      handleSequence Sequence update model
+    withUnit millisecond
+        [ ( 1000, FirstMessage )
+        , ( 2000, SecondMessage )
+        , ( 1000, ThirdMessage )
+        ]
+        |> sequence
 -}
-handleSequence :
-    (List ( Float, msg ) -> msg)
-    -> List ( Float, msg )
-    -> (msg -> model -> ( model, Cmd msg ))
-    -> model
-    -> ( model, Cmd msg )
-handleSequence sequenceMsg msgs update model =
-    case List.head msgs of
-        Just ( _, msg ) ->
-            let
-                remainingMsgs =
-                    List.drop 1 msgs
-
-                nextDelay =
-                    (getDelay 1) msgs
-
-                ( newModel, cmd ) =
-                    update msg model
-
-                nextCmd =
-                    if List.length msgs > 1 then
-                        after nextDelay (sequenceMsg remainingMsgs)
-                    else
-                        Cmd.none
-            in
-                newModel ! [ cmd, nextCmd ]
-
-        Nothing ->
-            model ! []
-
-
-{-| Private, gets a delay value by index from a list of (delay, msg)
--}
-getDelay : Int -> List ( Float, msg ) -> Float
-getDelay n msgs =
-    msgs
-        |> List.drop n
-        |> List.head
-        |> Maybe.map Tuple.first
-        |> Maybe.withDefault 0
+withUnit : Time -> List ( Float, msg ) -> List ( Float, Time, msg )
+withUnit unit msgs =
+    List.map (\( time, msg ) -> ( time, unit, msg )) msgs
