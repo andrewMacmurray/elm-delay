@@ -4,6 +4,7 @@ import Delay
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
+import Time exposing (millisecond, Time)
 
 
 type alias Model =
@@ -18,7 +19,6 @@ type Msg
     | Green
     | Blue
     | ColorCycling Bool
-    | Sequence (List ( Float, Msg ))
 
 
 init : ( Model, Cmd Msg )
@@ -29,26 +29,22 @@ init =
         ! []
 
 
-cycleColors : Model -> Cmd Msg
-cycleColors model =
-    let
-        sequence =
-            Delay.startIf (not model.colorCycling) Sequence
-    in
-        sequence
-            [ ( 0, ColorCycling True )
-            , ( 0, Red )
-            , ( 2000, Green )
-            , ( 2000, Blue )
-            , ( 2000, ColorCycling False )
-            ]
+cycleColors : List ( Float, Time, Msg )
+cycleColors =
+    Delay.withUnit millisecond
+        [ ( 0, ColorCycling True )
+        , ( 0, Red )
+        , ( 2000, Green )
+        , ( 2000, Blue )
+        , ( 2000, ColorCycling False )
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger ->
-            model ! [ cycleColors model ]
+            model ! [ cycleColors |> Delay.sequenceIf (not model.colorCycling) ]
 
         Red ->
             { model | color = "#BC1F31" } ! []
@@ -61,9 +57,6 @@ update msg model =
 
         ColorCycling bool ->
             { model | colorCycling = bool } ! []
-
-        Sequence msgs ->
-            Delay.handleSequence Sequence msgs update model
 
 
 view : Model -> Html Msg
