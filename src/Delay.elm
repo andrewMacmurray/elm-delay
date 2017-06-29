@@ -56,7 +56,7 @@ sequence msgs =
         |> Cmd.batch
 
 
-{-| Starts a sequence of delayed messages if predicate is True
+{-| Starts a sequence of delayed messages if predicate is `True`
 
     sequenceIf (not model.updating)
         [ ( 1000, millisecond, FirstMessage )
