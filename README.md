@@ -61,11 +61,11 @@ If you'd like all the steps to have the same unit of time, use the `Delay.withUn
 ```elm
 Trigger ->
     model
-        ! [ Delay.withUnit millisecond
-                [ ( 1000, FirstMessage )
-                , ( 2000, SecondMessage )
-                , ( 1000, ThirdMessage )
-                ]
-                |> Delay.sequence
+        ! [ Delay.sequence <|
+                Delay.withUnit millisecond
+                    [ ( 1000, FirstMessage )
+                    , ( 2000, SecondMessage )
+                    , ( 1000, ThirdMessage )
+                    ]
           ]
 ```

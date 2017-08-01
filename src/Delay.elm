@@ -101,12 +101,12 @@ sequenceIf predicate msgs =
 
 {-| Helper for making all steps have the same unit
 
-    withUnit millisecond
-      [ ( 1000, FirstMessage )
-      , ( 2000, SecondMessage )
-      , ( 1000, ThirdMessage )
-      ]
-      |> sequence
+    sequence <|
+        withUnit millisecond
+            [ ( 1000, FirstMessage )
+            , ( 2000, SecondMessage )
+            , ( 1000, ThirdMessage )
+            ]
 -}
 withUnit : Time -> List ( Float, msg ) -> List ( Float, Time, msg )
 withUnit unit msgs =

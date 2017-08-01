@@ -29,22 +29,23 @@ init =
         ! []
 
 
-cycleColors : List ( Float, Time, Msg )
-cycleColors =
-    Delay.withUnit millisecond
-        [ ( 0, ColorCycling True )
-        , ( 0, Red )
-        , ( 2000, Green )
-        , ( 2000, Blue )
-        , ( 2000, ColorCycling False )
-        ]
+cycleColors : Model -> Cmd Msg
+cycleColors model =
+    Delay.sequenceIf (not model.colorCycling) <|
+        Delay.withUnit millisecond
+            [ ( 0, ColorCycling True )
+            , ( 0, Red )
+            , ( 2000, Green )
+            , ( 2000, Blue )
+            , ( 2000, ColorCycling False )
+            ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger ->
-            model ! [ cycleColors |> Delay.sequenceIf (not model.colorCycling) ]
+            model ! [ cycleColors model ]
 
         Red ->
             { model | color = "#BC1F31" } ! []
