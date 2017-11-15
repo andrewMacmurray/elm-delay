@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.4.1.css">
+  </head>
+  <body>
+
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script src="https://code.jquery.com/qunit/qunit-2.4.1.js"></script>
+  <script src="elm.js" charset="utf-8"></script>
+  <script>
+
+    QUnit.test("check that correct values are sent from elm app periodically", (assert) => {
+      // the expected values sent from the elm app and delays associated
+      var expectedValues = [
+        { value: 0,  delay: 0 },
+        { value: 5,  delay: 500 },
+        { value: 10, delay: 1000 },
+        { value: 15, delay: 1500 },
+        { value: 0,  delay: 2000 }
+      ]
+
+      var doneTriggers = expectedValues.map(() => assert.async())
+      var testStartTime = assert.test.started
+
+      // starts the elm program
+      var app = Elm.TestDelay.worker()
+      // elm app state is sent out when each message is triggered
+      app.ports.notifyTestRunner.subscribe((elmAppState) => {
+
+        // checks that the value emitted is correct
+        var currentExpected = expectedValues[0].value
+        assert.equal(currentExpected, elmAppState, "correct value " + elmAppState)
+
+        // checks that the delay is within an acceptable range
+        var timeDiff      = Date.now() - testStartTime
+        var expectedDelay = expectedValues[0].delay
+        var withinRange   = timeDiff > expectedDelay && timeDiff < expectedDelay + 50
+        assert.ok(withinRange, "acceptable delay range: " + timeDiff)
+
+        doneTriggers[0]()
+        // removes validated test values
+        expectedValues = expectedValues.slice(1)
+        doneTriggers = doneTriggers.slice(1)
+      })
+    })
+
+  </script>
+  </body>
+</html>
