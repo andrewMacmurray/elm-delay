@@ -35,9 +35,7 @@ after time unit msg =
 -}
 after_ : Time -> msg -> Cmd msg
 after_ time msg =
-    Process.sleep time
-        |> Task.map (always msg)
-        |> Task.perform identity
+    Process.sleep time |> Task.perform (always msg)
 
 
 {-| Starts a sequence of delayed messages
