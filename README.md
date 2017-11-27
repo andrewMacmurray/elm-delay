@@ -3,6 +3,7 @@
 Elm utilities to trigger updates after a delay
 
 example: https://andrewmacmurray.github.io/elm-delay/
+tests: https://andrewmacmurray.github.io/elm-delay/tests/test.html
 
 ### Why?
 
