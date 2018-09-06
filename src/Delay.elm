@@ -1,9 +1,12 @@
 module Delay exposing
-    ( after
+    ( TimeUnit(..)
+    , after
     , sequence, sequenceIf, withUnit
     )
 
 {-| Utilities to delay updates after a set period of time
+
+@docs TimeUnit
 
 
 # Delay one message
@@ -19,23 +22,51 @@ module Delay exposing
 
 import Process
 import Task
-import Time exposing (Time, millisecond)
+
+
+type Duration
+    = Duration Float TimeUnit
+
+
+{-| Standard units of time
+-}
+type TimeUnit
+    = Millisecond
+    | Second
+    | Minute
+    | Hour
 
 
 {-| Delays an update (with a message) by a given amount of time
 
-    after 500 millisecond DelayedMsg
+    after 500 Millisecond DelayedMsg
 
 -}
-after : Float -> Time -> msg -> Cmd msg
+after : Float -> TimeUnit -> msg -> Cmd msg
 after time unit msg =
-    after_ (time * unit) msg
+    after_ (toMillis <| Duration time unit) msg
+
+
+toMillis : Duration -> Float
+toMillis (Duration t u) =
+    case u of
+        Millisecond ->
+            t
+
+        Second ->
+            1000 * t
+
+        Minute ->
+            toMillis <| Duration (60 * t) Second
+
+        Hour ->
+            toMillis <| Duration (60 * t) Minute
 
 
 {-| Private: internal version of after,
 used to collect total time in sequence
 -}
-after_ : Time -> msg -> Cmd msg
+after_ : Float -> msg -> Cmd msg
 after_ time msg =
     Process.sleep time |> Task.perform (always msg)
 
@@ -43,13 +74,13 @@ after_ time msg =
 {-| Starts a sequence of delayed messages
 
     sequence
-        [ ( 1000, millisecond, FirstMessage )
-        , ( 2000, millisecond, SecondMessage )
-        , ( 1000, millisecond, ThirdMessage )
+        [ ( 1000, Millisecond, FirstMessage )
+        , ( 2000, Millisecond, SecondMessage )
+        , ( 1000, Millisecond, ThirdMessage )
         ]
 
 -}
-sequence : List ( Float, Time, msg ) -> Cmd msg
+sequence : List ( Float, TimeUnit, msg ) -> Cmd msg
 sequence msgs =
     msgs
         |> List.foldl collectDelays ( 0, [] )
@@ -60,7 +91,7 @@ sequence msgs =
 {-| Private: helps create a list of delays,
 keeps track of the current delay time
 -}
-collectDelays : ( Float, Time, msg ) -> ( Float, List (Cmd msg) ) -> ( Float, List (Cmd msg) )
+collectDelays : ( Float, TimeUnit, msg ) -> ( Float, List (Cmd msg) ) -> ( Float, List (Cmd msg) )
 collectDelays ( time, unit, msg ) ( previousTotal, cmds ) =
     let
         newTotal =
@@ -72,11 +103,11 @@ collectDelays ( time, unit, msg ) ( previousTotal, cmds ) =
 {-| Private: checks if consecutive delays are too close together
 applies an offset if they are
 -}
-addOffset : Float -> Float -> Time -> Float
+addOffset : Float -> Float -> TimeUnit -> Float
 addOffset previousTotal time unit =
     let
         total =
-            previousTotal + (time * unit)
+            previousTotal + (toMillis <| Duration time unit)
     in
     if total <= previousTotal + 6 then
         total + 6
@@ -88,13 +119,13 @@ addOffset previousTotal time unit =
 {-| Starts a sequence of delayed messages if predicate is met
 
     sequenceIf (not model.updating)
-        [ ( 1000, millisecond, FirstMessage )
-        , ( 2000, millisecond, SecondMessage )
-        , ( 1000, millisecond, ThirdMessage )
+        [ ( 1000, Millisecond, FirstMessage )
+        , ( 2000, Millisecond, SecondMessage )
+        , ( 1000, Millisecond, ThirdMessage )
         ]
 
 -}
-sequenceIf : Bool -> List ( Float, Time, msg ) -> Cmd msg
+sequenceIf : Bool -> List ( Float, TimeUnit, msg ) -> Cmd msg
 sequenceIf predicate msgs =
     if predicate then
         sequence msgs
@@ -106,13 +137,13 @@ sequenceIf predicate msgs =
 {-| Helper for making all steps have the same unit
 
     sequence <|
-        withUnit millisecond
+        withUnit Millisecond
             [ ( 1000, FirstMessage )
             , ( 2000, SecondMessage )
             , ( 1000, ThirdMessage )
             ]
 
 -}
-withUnit : Time -> List ( Float, msg ) -> List ( Float, Time, msg )
+withUnit : TimeUnit -> List ( Float, msg ) -> List ( Float, TimeUnit, msg )
 withUnit unit msgs =
     List.map (\( time, msg ) -> ( time, unit, msg )) msgs

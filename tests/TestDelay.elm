@@ -2,8 +2,7 @@ port module TestDelay exposing (Model, Msg(..), init, main, notifyTestRunner, su
 
 import Delay
 import Json.Decode
-import Platform exposing (program)
-import Time exposing (millisecond)
+import Platform exposing (worker)
 
 
 
@@ -17,17 +16,17 @@ port notifyTestRunner : Int -> Cmd msg
 port trigger : (() -> msg) -> Sub msg
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    program
+    worker
         { init = init
         , update = update
         , subscriptions = subscriptions
         }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> ( Model, Cmd Msg )
+init _ =
     ( 0
     , Cmd.none
     )
@@ -46,7 +45,7 @@ type Msg
 testSequence : Cmd Msg
 testSequence =
     Delay.sequence <|
-        Delay.withUnit millisecond <|
+        Delay.withUnit Delay.Millisecond <|
             [ ( 500, Inc 5 )
             , ( 500, Inc 5 )
             , ( 500, Inc 5 )

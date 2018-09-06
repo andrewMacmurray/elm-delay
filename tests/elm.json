@@ -9,8 +9,7 @@
         "direct": {
             "elm/core": "1.0.0",
             "elm/html": "1.0.0",
-            "elm/json": "1.0.0",
-            "elm/time": "1.0.0"
+            "elm/json": "1.0.0"
         },
         "indirect": {
             "elm/virtual-dom": "1.0.0"
