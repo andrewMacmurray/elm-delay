@@ -1,9 +1,10 @@
-port module TestDelay exposing (..)
+port module TestDelay exposing (Model, Msg(..), init, main, notifyTestRunner, subscriptions, testSequence, trigger, update)
 
 import Delay
+import Json.Decode
 import Platform exposing (program)
 import Time exposing (millisecond)
-import Json.Decode
+
 
 
 -- JSON Decode needs to be imported for subscriptions to work
@@ -27,7 +28,9 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    0 ! []
+    ( 0
+    , Cmd.none
+    )
 
 
 type alias Model =
@@ -55,13 +58,19 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger _ ->
-            model ! [ testSequence ]
+            ( model
+            , testSequence
+            )
 
         Inc n ->
-            (model + n) ! [ notifyTestRunner <| model + n ]
+            ( model + n
+            , notifyTestRunner <| model + n
+            )
 
         Dec n ->
-            (model - n) ! [ notifyTestRunner <| model - n ]
+            ( model - n
+            , notifyTestRunner <| model - n
+            )
 
 
 subscriptions : Model -> Sub Msg

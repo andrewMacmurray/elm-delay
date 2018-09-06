@@ -1,17 +1,18 @@
-module Delay
-    exposing
-        ( after
-        , sequence
-        , sequenceIf
-        , withUnit
-        )
+module Delay exposing
+    ( after
+    , sequence, sequenceIf, withUnit
+    )
 
 {-| Utilities to delay updates after a set period of time
 
+
 # Delay one message
+
 @docs after
 
+
 # Delay a sequence of messages
+
 @docs sequence, sequenceIf, withUnit
 
 -}
@@ -24,6 +25,7 @@ import Time exposing (Time, millisecond)
 {-| Delays an update (with a message) by a given amount of time
 
     after 500 millisecond DelayedMsg
+
 -}
 after : Float -> Time -> msg -> Cmd msg
 after time unit msg =
@@ -31,7 +33,7 @@ after time unit msg =
 
 
 {-| Private: internal version of after,
-    used to collect total time in sequence
+used to collect total time in sequence
 -}
 after_ : Time -> msg -> Cmd msg
 after_ time msg =
@@ -45,6 +47,7 @@ after_ time msg =
         , ( 2000, millisecond, SecondMessage )
         , ( 1000, millisecond, ThirdMessage )
         ]
+
 -}
 sequence : List ( Float, Time, msg ) -> Cmd msg
 sequence msgs =
@@ -55,7 +58,7 @@ sequence msgs =
 
 
 {-| Private: helps create a list of delays,
-    keeps track of the current delay time
+keeps track of the current delay time
 -}
 collectDelays : ( Float, Time, msg ) -> ( Float, List (Cmd msg) ) -> ( Float, List (Cmd msg) )
 collectDelays ( time, unit, msg ) ( previousTotal, cmds ) =
@@ -63,11 +66,11 @@ collectDelays ( time, unit, msg ) ( previousTotal, cmds ) =
         newTotal =
             addOffset previousTotal time unit
     in
-        ( newTotal, cmds ++ [ after_ newTotal msg ] )
+    ( newTotal, cmds ++ [ after_ newTotal msg ] )
 
 
 {-| Private: checks if consecutive delays are too close together
-    applies an offset if they are
+applies an offset if they are
 -}
 addOffset : Float -> Float -> Time -> Float
 addOffset previousTotal time unit =
@@ -75,10 +78,11 @@ addOffset previousTotal time unit =
         total =
             previousTotal + (time * unit)
     in
-        if total <= previousTotal + 6 then
-            total + 6
-        else
-            total
+    if total <= previousTotal + 6 then
+        total + 6
+
+    else
+        total
 
 
 {-| Starts a sequence of delayed messages if predicate is met
@@ -88,11 +92,13 @@ addOffset previousTotal time unit =
         , ( 2000, millisecond, SecondMessage )
         , ( 1000, millisecond, ThirdMessage )
         ]
+
 -}
 sequenceIf : Bool -> List ( Float, Time, msg ) -> Cmd msg
 sequenceIf predicate msgs =
     if predicate then
         sequence msgs
+
     else
         Cmd.none
 
@@ -105,6 +111,7 @@ sequenceIf predicate msgs =
             , ( 2000, SecondMessage )
             , ( 1000, ThirdMessage )
             ]
+
 -}
 withUnit : Time -> List ( Float, msg ) -> List ( Float, Time, msg )
 withUnit unit msgs =
