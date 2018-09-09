@@ -2,8 +2,8 @@
 
 Elm utilities to trigger updates after a delay
 
-example: https://wakeful-treatment.surge.sh/
-tests: https://near-pie.surge.sh/
+**example**: https://wakeful-treatment.surge.sh/   
+**tests**: https://near-pie.surge.sh/
 
 ### Why?
 
