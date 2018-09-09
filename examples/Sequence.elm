@@ -1,10 +1,10 @@
-module Sequence exposing (..)
+module Sequence exposing (main)
 
+import Browser
 import Delay
 import Html exposing (..)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Time exposing (millisecond, Time)
 
 
 type alias Model =
@@ -23,16 +23,17 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    { color = "#1E70B5"
-    , colorCycling = False
-    }
-        ! []
+    ( { color = "#1E70B5"
+      , colorCycling = False
+      }
+    , Cmd.none
+    )
 
 
 cycleColors : Model -> Cmd Msg
 cycleColors model =
     Delay.sequenceIf (not model.colorCycling) <|
-        Delay.withUnit millisecond
+        Delay.withUnit Delay.Millisecond
             [ ( 0, ColorCycling True )
             , ( 0, Red )
             , ( 2000, Green )
@@ -45,54 +46,35 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger ->
-            model ! [ cycleColors model ]
+            ( model, cycleColors model )
 
         Red ->
-            { model | color = "#BC1F31" } ! []
+            ( { model | color = "#BC1F31" }, Cmd.none )
 
         Green ->
-            { model | color = "#259860" } ! []
+            ( { model | color = "#259860" }, Cmd.none )
 
         Blue ->
-            { model | color = "#1E70B5" } ! []
+            ( { model | color = "#1E70B5" }, Cmd.none )
 
         ColorCycling bool ->
-            { model | colorCycling = bool } ! []
+            ( { model | colorCycling = bool }, Cmd.none )
 
 
 view : Model -> Html Msg
-view model =
+view { color } =
     div
-        [ style <| backgroundStyles model
+        [ style "background-color" color
+        , class "background"
         , onClick Trigger
         ]
         [ text "click to cycle through the colors" ]
 
 
-backgroundStyles : Model -> List ( String, String )
-backgroundStyles { color } =
-    [ ( "background-color", color )
-    , ( "position", "fixed" )
-    , ( "width", "100%" )
-    , ( "height", "100%" )
-    , ( "top", "0" )
-    , ( "left", "0" )
-    , ( "transition", "2s ease" )
-    , ( "display", "flex" )
-    , ( "justify-content", "center" )
-    , ( "align-items", "center" )
-    , ( "text-align", "center" )
-    , ( "color", "white" )
-    , ( "cursor", "pointer" )
-    , ( "font-family", "helvetica" )
-    , ( "font-size", "2rem" )
-    ]
-
-
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    program
-        { init = init
+    Browser.element
+        { init = always init
         , update = update
         , view = view
         , subscriptions = always Sub.none

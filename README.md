@@ -2,8 +2,8 @@
 
 Elm utilities to trigger updates after a delay
 
-example: https://andrewmacmurray.github.io/elm-delay/  
-tests: https://andrewmacmurray.github.io/elm-delay/tests/test.html
+example: https://wakeful-treatment.surge.sh/
+tests: https://near-pie.surge.sh/
 
 ### Why?
 
@@ -19,7 +19,7 @@ To trigger a single update after a period of time pass `Delay.after` as a comman
 
 ```elm
 FirstMessage ->
-    model ! [ Delay.after 500 millisecond SecondMessage ]
+    model ! [ Delay.after 500 Millisecond SecondMessage ]
 ```
 
 After triggering `FirstMessage`, `500ms` later update will be called with `SecondMessage`
@@ -30,19 +30,18 @@ After triggering `FirstMessage`, `500ms` later update will be called with `Secon
 Trigger ->
     model
         ! [ Delay.sequence
-                [ ( 1000, millisecond, FirstMessage )
-                , ( 2000, millisecond, SecondMessage )
-                , ( 1000, millisecond, ThirdMessage )
+                [ ( 1000, Millisecond, FirstMessage )
+                , ( 2000, Millisecond, SecondMessage )
+                , ( 1000, Millisecond, ThirdMessage )
                 ]
           ]
 ```
 
 by sending a `Trigger` `Msg`:
 
-+ after `1000ms` update will be called with `FirstMessage`
-+ then after `2000ms` update will be called with `SecondMessage`
-+ then after `1000ms` update will be called with `ThirdMessage`
-
+- after `1000ms` update will be called with `FirstMessage`
+- then after `2000ms` update will be called with `SecondMessage`
+- then after `1000ms` update will be called with `ThirdMessage`
 
 As a convenience if you'd only like to start a sequence if the model is in a particular shape you can use `Delay.sequenceIf`
 
@@ -50,9 +49,9 @@ As a convenience if you'd only like to start a sequence if the model is in a par
 Trigger ->
     model
         ! [ Delay.sequenceIf (not model.updating)
-                [ ( 1000, millisecond, FirstMessage )
-                , ( 2000, millisecond, SecondMessage )
-                , ( 1000, millisecond, ThirdMessage )
+                [ ( 1000, Millisecond, FirstMessage )
+                , ( 2000, Millisecond, SecondMessage )
+                , ( 1000, Millisecond, ThirdMessage )
                 ]
           ]
 ```
@@ -63,7 +62,7 @@ If you'd like all the steps to have the same unit of time, use the `Delay.withUn
 Trigger ->
     model
         ! [ Delay.sequence <|
-                Delay.withUnit millisecond
+                Delay.withUnit Millisecond
                     [ ( 1000, FirstMessage )
                     , ( 2000, SecondMessage )
                     , ( 1000, ThirdMessage )

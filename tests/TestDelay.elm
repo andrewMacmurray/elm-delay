@@ -1,13 +1,7 @@
-port module TestDelay exposing (Model, Msg(..), init, main, notifyTestRunner, subscriptions, testSequence, trigger, update)
+port module TestDelay exposing (main)
 
 import Delay
-import Json.Decode
-import Platform exposing (worker)
-
-
-
--- JSON Decode needs to be imported for subscriptions to work
--- https://github.com/elm-lang/core/issues/703
+import Platform
 
 
 port notifyTestRunner : Int -> Cmd msg
@@ -18,7 +12,7 @@ port trigger : (() -> msg) -> Sub msg
 
 main : Program () Model Msg
 main =
-    worker
+    Platform.worker
         { init = init
         , update = update
         , subscriptions = subscriptions
@@ -27,9 +21,7 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( 0
-    , Cmd.none
-    )
+    ( 0, Cmd.none )
 
 
 type alias Model =
@@ -57,19 +49,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger _ ->
-            ( model
-            , testSequence
-            )
+            ( model, testSequence )
 
         Inc n ->
-            ( model + n
-            , notifyTestRunner <| model + n
-            )
+            ( model + n, notifyTestRunner <| model + n )
 
         Dec n ->
-            ( model - n
-            , notifyTestRunner <| model - n
-            )
+            ( model - n, notifyTestRunner <| model - n )
 
 
 subscriptions : Model -> Sub Msg
