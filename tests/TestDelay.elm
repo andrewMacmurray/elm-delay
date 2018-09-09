@@ -1,9 +1,9 @@
-port module TestDelay exposing (..)
+port module TestDelay exposing (Model, Msg(..), init, main, notifyTestRunner, subscriptions, testSequence, trigger, update)
 
 import Delay
-import Platform exposing (program)
-import Time exposing (millisecond)
 import Json.Decode
+import Platform exposing (worker)
+
 
 
 -- JSON Decode needs to be imported for subscriptions to work
@@ -16,18 +16,20 @@ port notifyTestRunner : Int -> Cmd msg
 port trigger : (() -> msg) -> Sub msg
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    program
+    worker
         { init = init
         , update = update
         , subscriptions = subscriptions
         }
 
 
-init : ( Model, Cmd Msg )
-init =
-    0 ! []
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( 0
+    , Cmd.none
+    )
 
 
 type alias Model =
@@ -43,7 +45,7 @@ type Msg
 testSequence : Cmd Msg
 testSequence =
     Delay.sequence <|
-        Delay.withUnit millisecond <|
+        Delay.withUnit Delay.Millisecond <|
             [ ( 500, Inc 5 )
             , ( 500, Inc 5 )
             , ( 500, Inc 5 )
@@ -55,13 +57,19 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Trigger _ ->
-            model ! [ testSequence ]
+            ( model
+            , testSequence
+            )
 
         Inc n ->
-            (model + n) ! [ notifyTestRunner <| model + n ]
+            ( model + n
+            , notifyTestRunner <| model + n
+            )
 
         Dec n ->
-            (model - n) ! [ notifyTestRunner <| model - n ]
+            ( model - n
+            , notifyTestRunner <| model - n
+            )
 
 
 subscriptions : Model -> Sub Msg
