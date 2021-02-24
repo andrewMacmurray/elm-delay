@@ -19,7 +19,9 @@ To trigger a single update after a period of time pass `Delay.after` as a comman
 
 ```elm
 FirstMessage ->
-    model ! [ Delay.after 500 Millisecond SecondMessage ]
+    ( model
+    , Delay.after 500 Millisecond SecondMessage
+    )
 ```
 
 After triggering `FirstMessage`, `500ms` later update will be called with `SecondMessage`
@@ -28,13 +30,13 @@ After triggering `FirstMessage`, `500ms` later update will be called with `Secon
 
 ```elm
 Trigger ->
-    model
-        ! [ Delay.sequence
-                [ ( 1000, Millisecond, FirstMessage )
-                , ( 2000, Millisecond, SecondMessage )
-                , ( 1000, Millisecond, ThirdMessage )
-                ]
-          ]
+    ( model
+    , Delay.sequence
+        [ ( 1000, Millisecond, FirstMessage )
+        , ( 2000, Millisecond, SecondMessage )
+        , ( 1000, Millisecond, ThirdMessage )
+        ]
+    )
 ```
 
 by sending a `Trigger` `Msg`:
@@ -47,25 +49,25 @@ As a convenience if you'd only like to start a sequence if the model is in a par
 
 ```elm
 Trigger ->
-    model
-        ! [ Delay.sequenceIf (not model.updating)
-                [ ( 1000, Millisecond, FirstMessage )
-                , ( 2000, Millisecond, SecondMessage )
-                , ( 1000, Millisecond, ThirdMessage )
-                ]
-          ]
+    ( model
+    , Delay.sequenceIf (not model.updating)
+        [ ( 1000, Millisecond, FirstMessage )
+        , ( 2000, Millisecond, SecondMessage )
+        , ( 1000, Millisecond, ThirdMessage )
+        ]
+    )
 ```
 
 If you'd like all the steps to have the same unit of time, use the `Delay.withUnit` helper
 
 ```elm
 Trigger ->
-    model
-        ! [ Delay.sequence <|
-                Delay.withUnit Millisecond
-                    [ ( 1000, FirstMessage )
-                    , ( 2000, SecondMessage )
-                    , ( 1000, ThirdMessage )
-                    ]
-          ]
+    ( model
+    , Delay.sequence <|
+        Delay.withUnit Millisecond
+            [ ( 1000, FirstMessage )
+            , ( 2000, SecondMessage )
+            , ( 1000, ThirdMessage )
+            ]
+    )
 ```
