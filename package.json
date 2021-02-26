@@ -13,10 +13,12 @@
   },
   "devDependencies": {
     "elm-hot": "^1.1.6",
-    "node-elm-compiler": "^5.0.5"
+    "node-elm-compiler": "^5.0.5",
+    "surge": "^0.21.7"
   },
   "scripts": {
-    "examples:build": "parcel build examples/src/index.html"
+    "examples:build": "parcel build examples/src/index.html",
+    "surge:push": "surge --project dist --domain https://elm-delay-examples.surge.sh"
   },
   "repository": {
     "type": "git",
