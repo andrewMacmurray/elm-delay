@@ -1,9 +1,15 @@
-# elm-package generated files
+# elm
 elm-stuff/
-# elm-repl generated files
 repl-temp-*
-
-documentation.json
-
 examples/elm.js
 tests/elm.js
+
+# JS
+node_modules
+.cache
+
+# build
+dist
+
+# editor
+.idea
