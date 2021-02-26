@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - build-examples
+      - master
 
 jobs:
   deploy-examples:
