@@ -24,8 +24,8 @@
     "type": "git",
     "url": "git+https://github.com/andrewMacmurray/elm-delay.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Andrew MacMurray",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/andrewMacmurray/elm-delay/issues"
   },
