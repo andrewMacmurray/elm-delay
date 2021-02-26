@@ -7,7 +7,7 @@ on:
       - build-examples
 
 jobs:
-  deploy:
+  deploy-examples:
     runs-on: ubuntu-latest
     env:
       SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
