@@ -1,0 +1,30 @@
+name: Deploy Examples
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy-examples:
+    runs-on: ubuntu-latest
+    env:
+      SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+      SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.elm
+          key: ${{ runner.os }}-elm-${{ hashFiles('**/elm.json') }}
+          restore-keys: ${{ runner.os }}-elm-
+
+      - run: npm ci
+      - run: npm run examples:build
+      - run: npm run surge:push

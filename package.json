@@ -1,0 +1,33 @@
+{
+  "name": "elm-delay",
+  "version": "3.0.1",
+  "description": "Elm utilities to trigger updates after a delay",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "dependencies": {
+    "elm": "^0.19.1-5",
+    "elm-format": "^0.8.5",
+    "parcel": "^1.12.4"
+  },
+  "devDependencies": {
+    "elm-hot": "^1.1.6",
+    "node-elm-compiler": "^5.0.5",
+    "surge": "^0.21.7"
+  },
+  "scripts": {
+    "examples:build": "parcel build examples/src/index.html",
+    "surge:push": "surge --project dist --domain https://elm-delay-examples.surge.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewMacmurray/elm-delay.git"
+  },
+  "author": "Andrew MacMurray",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewMacmurray/elm-delay/issues"
+  },
+  "homepage": "https://github.com/andrewMacmurray/elm-delay#readme"
+}

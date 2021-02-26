@@ -1,10 +1,14 @@
-module Sequence exposing (main)
+module Main exposing (main)
 
 import Browser
 import Delay
 import Html exposing (..)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
+
+
+
+-- Model
 
 
 type alias Model =
@@ -21,6 +25,10 @@ type Msg
     | ColorCycling Bool
 
 
+
+-- Init
+
+
 init : ( Model, Cmd Msg )
 init =
     ( { color = "#1E70B5"
@@ -30,16 +38,25 @@ init =
     )
 
 
+
+-- Sequence
+
+
 cycleColors : Model -> Cmd Msg
 cycleColors model =
-    Delay.sequenceIf (not model.colorCycling) <|
-        Delay.withUnit Delay.Millisecond
+    Delay.sequenceIf (not model.colorCycling)
+        (Delay.withUnit Delay.Millisecond
             [ ( 0, ColorCycling True )
             , ( 0, Red )
             , ( 2000, Green )
             , ( 2000, Blue )
             , ( 2000, ColorCycling False )
             ]
+        )
+
+
+
+-- Update
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -61,6 +78,10 @@ update msg model =
             ( { model | colorCycling = bool }, Cmd.none )
 
 
+
+-- View
+
+
 view : Model -> Html Msg
 view { color } =
     div
@@ -69,6 +90,10 @@ view { color } =
         , onClick Trigger
         ]
         [ text "click to cycle through the colors" ]
+
+
+
+-- App
 
 
 main : Program () Model Msg
