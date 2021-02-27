@@ -1,9 +1,8 @@
-# Delay
+# Elm Delay
 
 Elm utilities to trigger updates after a delay
 
-**example**: https://elm-delay-examples.surge.sh/   
-**tests**: https://near-pie.surge.sh/
+**example**: https://elm-delay-examples.surge.sh/
 
 ### Why?
 
