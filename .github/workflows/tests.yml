@@ -1,16 +1,16 @@
-name: Deploy Examples
+name: Integration Tests
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy-examples:
+  run-tests:
     runs-on: ubuntu-latest
-    env:
-      SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
-      SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -25,5 +25,4 @@ jobs:
           restore-keys: ${{ runner.os }}-elm-
 
       - run: npm ci
-      - run: npm run examples:build
-      - run: npm run surge:push
+      - run: npm run test

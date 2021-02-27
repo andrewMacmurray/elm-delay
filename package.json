@@ -6,19 +6,20 @@
     "example": "examples",
     "test": "tests"
   },
-  "dependencies": {
+  "devDependencies": {
+    "ava": "^3.15.0",
     "elm": "^0.19.1-5",
     "elm-format": "^0.8.5",
-    "parcel": "^1.12.4"
-  },
-  "devDependencies": {
     "elm-hot": "^1.1.6",
     "node-elm-compiler": "^5.0.5",
+    "parcel": "^1.12.4",
     "surge": "^0.21.7"
   },
   "scripts": {
     "examples:build": "parcel build examples/src/index.html",
-    "surge:push": "surge --project dist --domain https://elm-delay-examples.surge.sh"
+    "surge:push": "surge --project dist --domain https://elm-delay-examples.surge.sh",
+    "test:build": "cd tests/program && elm make Main.elm --output index.js",
+    "test": "npm run test:build && ava"
   },
   "repository": {
     "type": "git",
@@ -29,5 +30,10 @@
   "bugs": {
     "url": "https://github.com/andrewMacmurray/elm-delay/issues"
   },
-  "homepage": "https://github.com/andrewMacmurray/elm-delay#readme"
+  "homepage": "https://github.com/andrewMacmurray/elm-delay#readme",
+  "ava": {
+    "files": [
+      "tests/integration/**"
+    ]
+  }
 }
