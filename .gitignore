@@ -11,6 +11,7 @@ node_modules
 # build
 dist
 tests/program/index.js
+docs.json
 
 # editor
 .idea

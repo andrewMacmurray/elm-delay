@@ -45,14 +45,12 @@ init =
 cycleColors : Model -> Cmd Msg
 cycleColors model =
     Delay.sequenceIf (not model.colorCycling)
-        (Delay.withUnit Delay.Millisecond
-            [ ( 0, ColorCycling True )
-            , ( 0, Red )
-            , ( 2000, Green )
-            , ( 2000, Blue )
-            , ( 2000, ColorCycling False )
-            ]
-        )
+        [ ( 0, ColorCycling True )
+        , ( 0, Red )
+        , ( 2000, Green )
+        , ( 2000, Blue )
+        , ( 2000, ColorCycling False )
+        ]
 
 
 

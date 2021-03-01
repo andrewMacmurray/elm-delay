@@ -22,7 +22,7 @@ type alias Flags =
 
 
 type alias Input =
-    { delay : Float
+    { delay : Delay.Millis
     , value : Output
     }
 
@@ -48,10 +48,10 @@ init flags =
 
 runSequence : Flags -> Cmd Msg
 runSequence inputs =
-    Delay.sequence (Delay.withUnit Delay.Millisecond (toSequence inputs))
+    Delay.sequence (toSequence inputs)
 
 
-toSequence : List Input -> List ( Float, Msg )
+toSequence : List Input -> List ( Delay.Millis, Msg )
 toSequence inputs =
     List.map (\input -> ( input.delay, Output input.value )) inputs ++ [ ( 0, Done ) ]
 
