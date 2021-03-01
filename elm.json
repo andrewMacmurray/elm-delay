@@ -3,7 +3,7 @@
     "name": "andrewMacmurray/elm-delay",
     "summary": "utilities to trigger updates after a delay",
     "license": "BSD-3-Clause",
-    "version": "3.0.1",
+    "version": "4.0.0",
     "exposed-modules": [
         "Delay"
     ],
