@@ -1,7 +1,7 @@
 module Delay exposing
     ( after
     , sequence, sequenceIf, withUnit
-    , Millis, seconds, minutes, hours
+    , Millis, ToUnit, seconds, minutes, hours
     )
 
 {-| Utilities to delay updates after a given number of milliseconds
@@ -19,7 +19,7 @@ module Delay exposing
 
 # Time units
 
-@docs Millis, seconds, minutes, hours
+@docs Millis, ToUnit, seconds, minutes, hours
 
 -}
 
@@ -31,6 +31,12 @@ import Task
 -}
 type alias Millis =
     Int
+
+
+{-| Alias for converting `milliseconds` to another unit
+-}
+type alias ToUnit =
+    Millis -> Millis
 
 
 {-| Triggers a Message after given number of milliseconds
@@ -94,21 +100,21 @@ addOffset previousTotal time =
 
 {-| Convert `milliseconds` to `seconds`
 -}
-seconds : Millis -> Millis
+seconds : ToUnit
 seconds millis =
     millis * 1000
 
 
 {-| Convert `milliseconds` to `minutes`
 -}
-minutes : Millis -> Millis
+minutes : ToUnit
 minutes millis =
     seconds millis * 60
 
 
 {-| Convert `milliseconds` to `hours`
 -}
-hours : Millis -> Millis
+hours : ToUnit
 hours millis =
     minutes millis * 60
 
@@ -142,6 +148,6 @@ sequenceIf predicate msgs =
         )
 
 -}
-withUnit : (Millis -> Millis) -> List ( Millis, msg ) -> List ( Millis, msg )
+withUnit : ToUnit -> List ( Millis, msg ) -> List ( Millis, msg )
 withUnit toUnit =
     List.map (Tuple.mapFirst toUnit)
