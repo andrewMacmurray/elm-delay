@@ -13,7 +13,7 @@
     "elm-format": "^0.8.5",
     "elm-hot": "^1.1.6",
     "node-elm-compiler": "^5.0.5",
-    "parcel": "^1.12.4",
+    "parcel": "^2.8.2",
     "surge": "^0.21.7"
   },
   "scripts": {
